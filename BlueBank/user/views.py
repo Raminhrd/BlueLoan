@@ -5,6 +5,8 @@ from user.models import *
 from finance.models import *
 from django.views.decorators.csrf import csrf_exempt
 import json
+from rest_framework.generics import ListAPIView
+from serializers import *
 
 
 def loan_request(request, user_id, amount, months):
@@ -81,3 +83,14 @@ def delete_loan_request(request, loan_id):
         return HttpResponse('Loan deleted')
     else :
         return HttpResponse('Invalid request')
+    
+
+def loan_request_list(request):
+    loan_request = LoanRequest.objects.all().values('owner', 'amount', 'months')
+
+    return JsonResponse(list(loan_request), safe=False)
+
+
+#class LoanRequestList(ListAPIView):
+    #queryset = LoanRequest.objects.all()
+    #serializer_class = LoanRequestSerializer
