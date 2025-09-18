@@ -3,6 +3,8 @@ from django.utils.timezone import now
 from datetime import timedelta
 from user.models import *
 from finance.models import *
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 def loan_request(request, user_id, amount, months):
@@ -20,6 +22,31 @@ def loan_request(request, user_id, amount, months):
         status = 'p'
     )
     return HttpResponse("The loan request submited!")
+
+
+#@csrf_exempt
+#def loan_request_post(request):
+#   if request.method == 'POST':
+#   data = json.loads(request.body )
+#   user_id = data['user_id']
+#   amount = data['amonut']
+#   months = data['months']
+#   if months > 12:
+#       return HttpResponse('Max months is 12')
+#   if amount > 100000000:
+#       return HttpResponse('Max amount is 100000000')
+#   bank = Bank.objects.first()
+#   if amount > bank.amount :
+#       return HttpResponse('amount is to  high')
+#   LoanRequest.objects.create(
+#       owner_id = user_id,
+#       amount = amount,
+#       months = months,
+#       status = 'p'
+#   )
+#   return HttpResponse("The loan request submited!")
+#    else :
+#   return HttpResponse("Invalid request")
 
 
 def change_request_status(request, loan_id, status):
@@ -44,4 +71,13 @@ def change_request_status(request, loan_id, status):
             bank.save()
 
             return HttpResponse('loan request  status changed to' + status)
+        
 
+def delete_loan_request(request, loan_id):
+    if request.method == 'DELETE':  
+        loan = LoanRequest.objects.get(id=loan_id)
+    if loan.status == 'p':
+        loan.delete()
+        return HttpResponse('Loan deleted')
+    else :
+        return HttpResponse('Invalid request')
